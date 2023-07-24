@@ -86,6 +86,7 @@ const medianAggregation: GridAggregationFunction<number, number | null> = {
 function App() {
   const [rows, setRows] =  useState<any>([]);  // TODO: Update any to RowData
   const [fund, setFund] = useState<keyof typeof FUNDS>('future');
+  const [quickFilterValues, setQuickFilterValues] = useState<string[]>([]);
   const { readRemoteFile } = usePapaParse();
 
   useEffect(() => {
@@ -156,8 +157,12 @@ function App() {
             },
           }}
           filterModel={{
-            items: [{ field: 'fund', operator: 'equals', value: FUNDS[fund as keyof typeof FUNDS] }],
+            items: [
+              { field: 'fund', operator: 'equals', value: FUNDS[fund as keyof typeof FUNDS] },
+            ],
+            quickFilterValues: quickFilterValues,
           }}
+          onFilterModelChange={(model) => setQuickFilterValues(model.quickFilterValues || [])}
           slots={{ toolbar: GridToolbar }}
           slotProps={{
             toolbar: {
