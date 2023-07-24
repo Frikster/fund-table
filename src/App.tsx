@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { usePapaParse } from 'react-papaparse';
-import { DataGridPremium, GRID_AGGREGATION_FUNCTIONS, GridColDef, GridToolbar, GridAggregationFunction } from '@mui/x-data-grid-premium';
+import { DataGridPremium, GRID_AGGREGATION_FUNCTIONS, GridColDef, GridToolbar, GridAggregationFunction, GridFilterItem } from '@mui/x-data-grid-premium';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+import Checkbox from '@mui/material/Checkbox';
 // import Rating from '@mui/material/Rating';
 import './App.css';
 
@@ -87,6 +88,7 @@ function App() {
   const [rows, setRows] =  useState<any>([]);  // TODO: Update any to RowData
   const [fund, setFund] = useState<keyof typeof FUNDS>('future');
   const [quickFilterValues, setQuickFilterValues] = useState<string[]>([]);
+  const [onlyPositiveRatings, setOnlyPositiveRatings] = React.useState<boolean>(false);
   const { readRemoteFile } = usePapaParse();
 
   useEffect(() => {
@@ -124,7 +126,12 @@ function App() {
       },
     });
   }, []);
-  console.log(FUNDS[fund as keyof typeof FUNDS])
+  
+  let filterItems: GridFilterItem[] = [{id: 1, field: 'fund', operator: 'equals', value: FUNDS[fund as keyof typeof FUNDS] }];
+  if (onlyPositiveRatings) {
+    filterItems.push({id: 2, field: 'rating', operator: '>', value: 0 });
+  }
+
   return (
     <div className="App">
       <FormControl>
@@ -139,6 +146,17 @@ function App() {
           {Object.keys(FUNDS).map((key) => <FormControlLabel value={key} control={<Radio />} label={FUNDS[key as keyof typeof FUNDS]} />)}
         </RadioGroup>
       </FormControl>
+      <br/>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={onlyPositiveRatings}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setOnlyPositiveRatings(event.target.checked)}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />
+        }
+        label="Only Show Positive Ratings"
+      />
       <div style={{ height: 500, padding: '20px' }}>
         <DataGridPremium
           rows={rows}
@@ -157,9 +175,7 @@ function App() {
             },
           }}
           filterModel={{
-            items: [
-              { field: 'fund', operator: 'equals', value: FUNDS[fund as keyof typeof FUNDS] },
-            ],
+            items: filterItems,
             quickFilterValues: quickFilterValues,
           }}
           onFilterModelChange={(model) => setQuickFilterValues(model.quickFilterValues || [])}
