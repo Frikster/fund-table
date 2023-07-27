@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePapaParse } from 'react-papaparse';
-import { DataGridPremium, GRID_AGGREGATION_FUNCTIONS, GridColDef, GridToolbar, GridAggregationFunction, GridFilterItem } from '@mui/x-data-grid-premium';
+import { DataGridPremium, GRID_AGGREGATION_FUNCTIONS, GridColDef, GridToolbarContainer, GridToolbarQuickFilter,
+         GridToolbarColumnsButton, GridToolbarExport, GridToolbarDensitySelector, GridAggregationFunction, GridFilterItem } from '@mui/x-data-grid-premium';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -64,6 +65,17 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });
+
+function CustomToolbar() {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarQuickFilter />
+      <GridToolbarColumnsButton />
+      <GridToolbarDensitySelector />
+      <GridToolbarExport />
+    </GridToolbarContainer>
+  );
+}
 
 const medianAggregation: GridAggregationFunction<number, number | null> = {
   apply: (params) => {
@@ -179,7 +191,7 @@ function App() {
             quickFilterValues: quickFilterValues,
           }}
           onFilterModelChange={(model) => setQuickFilterValues(model.quickFilterValues || [])}
-          slots={{ toolbar: GridToolbar }}
+          slots={{ toolbar: CustomToolbar }}
           slotProps={{
             toolbar: {
               showQuickFilter: true,
